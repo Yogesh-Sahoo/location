@@ -1,0 +1,72 @@
+import GetOldTweets3 as got
+import pandas as pd
+from textblob import TextBlob
+import numpy as np
+import re
+
+# create a function to analyse and extract twitter information into a pandas df
+class TweetAnalyzer():
+    """
+    Functionality for analyzing and categorizing content from tweets.
+    """
+
+    def clean_tweet(self, tweet):
+        return ' '.join(re.sub("(@[A-Za-z0-9]+)|([^0-9A-Za-z \t])|(\w+:\/\/\S+)", " ", tweet).split())
+
+    def analyze_sentiment(self, tweet):
+        analysis = TextBlob(self.clean_tweet(tweet))
+
+        if analysis.sentiment.polarity > 0:
+            return 1
+        elif analysis.sentiment.polarity == 0:
+            return 0
+        else:
+            return -1
+
+# create a function to extract twitter information into a pandas df
+def get_twitter_info():
+    tweet_df["tweet_text"] = tweet_df["got_criteria"].apply(lambda x: x.text)
+    tweet_df["date"] = tweet_df["got_criteria"].apply(lambda x: x.date)
+    tweet_df["hashtags"] = tweet_df["got_criteria"].apply(lambda x: x.hashtags)
+    tweet_df["link"] = tweet_df["got_criteria"].apply(lambda x: x.permalink)
+
+
+# set search variables
+# set keyword, location and search variables
+keyword = str("American Express" or "Amex")
+locations = ['Maine', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New Hampshire', 'Vermont', 'New York',
+             'Pennsylvania', 'New Jersey', 'Delaware', 'Maryland']
+oldest_date = "2020-03-01"
+newest_date = "2020-03-31"
+number_tweets = 10
+language = "en"
+
+# get old tweets
+tweetCriteria_list = []
+for location in locations:
+    tweetCriteria = got.manager.TweetCriteria().setQuerySearch(keyword) \
+        .setSince(oldest_date) \
+        .setUntil(newest_date) \
+        .setNear(location) \
+        .setMaxTweets(number_tweets)
+    tweetCriteria_list.append(tweetCriteria)
+
+# create twitter info for each city
+tweet_dict = {}
+for criteria, location in zip(tweetCriteria_list, locations):
+    tweets = got.manager.TweetManager.getTweets(criteria)
+    tweet_dict[location] = tweets
+
+# create df
+tweet_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in tweet_dict.items()]))
+tweet_df['tweet_count'] = tweet_df.index
+tweet_df = pd.melt(tweet_df, id_vars=["tweet_count"], var_name='States', value_name='got_criteria')
+tweet_df = tweet_df.dropna()
+
+# extract twitter information
+tweet_analyzer = TweetAnalyzer()
+get_twitter_info()
+tweet_df = tweet_df.drop("got_criteria", 1)
+tweet_df['sentiment'] = np.array([tweet_analyzer.analyze_sentiment(tweet) for tweet in tweet_df['tweet_text']])
+# export
+tweet_df.to_csv("Northeast_Mar.csv")
