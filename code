@@ -40,15 +40,15 @@ locations = []
 us_states = ['Maine', 'Massachusetts', 'Rhode Island', 'Connecticut', 'New Hampshire', 'Vermont', 'New York',
              'Pennsylvania', 'New Jersey', 'Delaware', 'Maryland']
 f = open("US city list.csv")
-reader = csv.reader
+reader = list(csv.reader(f))
 city = {}
 for row in reader:
-    city[row[1]] = {"state": row[0]}
+    city[row[0]] = {"state": row[1]}
 
 city_list = list(city.keys())
 state_list = list(city.values())
 
-locations = city.get[state_list.index.list(us_states)]
+locations = city.get[state_list.index(us_states)]
 
 
 oldest_date = "2020-03-01"
