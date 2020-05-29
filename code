@@ -43,13 +43,13 @@ f = open("US city list.csv")
 reader = list(csv.reader(f))
 city = {}
 for row in reader:
-    city[row[0]] = {"state": row[1]}
+    city[row[0]] = row[1]
 
 city_list = list(city.keys())
 state_list = list(city.values())
 
-locations = city.get[state_list.index(us_states)]
-
+for item in locations:
+    locations = city_list.append(us_states)
 
 oldest_date = "2020-03-01"
 newest_date = "2020-03-31"
@@ -70,7 +70,7 @@ for location in locations:
 tweet_dict = {}
 for criteria, location in zip(tweetCriteria_list, locations):
     tweets = got.manager.TweetManager.getTweets(criteria)
-    tweet_dict[locations] = tweets
+    tweet_dict[location] = tweets
 
 # create df
 tweet_df = pd.DataFrame(dict([(k, pd.Series(v)) for k, v in tweet_dict.items()]))
